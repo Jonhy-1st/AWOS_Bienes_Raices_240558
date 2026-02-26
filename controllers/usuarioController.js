@@ -1,4 +1,5 @@
 const formularioLogin = (req, res) => {
+    res.render('auth/login', {pagina: "Inicia Sesión"});
     res.render('auth/login', {pagina: "Ingresa los datos de la cuenta"});
 }
 
@@ -11,5 +12,6 @@ const formualrioRecuperar = (req, res) => {
 }
 
 export {
+    formularioLogin, formularioRegistro,
     formularioLogin, formularioRegistro, formualrioRecuperar
 }

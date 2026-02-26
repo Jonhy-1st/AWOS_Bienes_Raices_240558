@@ -1,4 +1,6 @@
-import express from "express";
+import express, { json } from "express"
+import  { formularioLogin} from '../controllers/usuarioController.js';
+import { formularioRegistro } from "../controllers/usuarioController.js";
 
 //creamos el ruteador
 
@@ -7,6 +9,13 @@ const router = express.Router();
 //Definimos las rutas 
 
 //Ejemplo de ENDPOINT GET 
+router.get("/login", formularioLogin )
+router.get("/registro", formularioRegistro )
+
+
+router.get("/registro2", formularioRegistro )
+
+
 router.get("/", (req, res) => {
     console.log("Bienvenid@ al sistema de Bienes Raices")
     console.log("Procesando una petición del tipo GET");
@@ -18,7 +27,6 @@ router.get("/", (req, res) => {
 
 //Ejemplo de ENDPOINT POST
 router.post("/", (req, res) => {
-    console.log("Se ha recibido una petición tipo POST")
     console.log("Procesando una petición del tipo POST");
     res.json({
         status:200, 
@@ -89,15 +97,6 @@ router.delete("/deleteProperty/:id", (req, res) => {
         status: 200,
         message: `Se ha solicitado eliminar la propiedad con el id ${id}`
     })
-})
-router.get("/login", (req, res) => {
-    console.log("El usuario desea acceder al sistema")
-    res.status(200).send(`<h1>Por favor introduce tus credenciales de acceso </h1>
-        <form>
-            <input type="text"></input><br>
-            <input type="password"></input><br>
-            <button>Enviar</button>
-        </form>`);
 })
 
 router.get("/saludo/:nombre", (req, res)=>
