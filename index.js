@@ -1,8 +1,16 @@
 import express from "express";
+import usuarioRoutes from "./routes/usuarioRoutes.js";
+
+//Importamos sus rutas (ruteo)
+app.use("/", usuarioRoutes);
 
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
+
+app.listen(PORT, ()=> {
+    console.log(`El servidor esta iniciado en el puerto ${PORT}`)
+}) 
 
 app.get("/", (req, res) => {
     console.log("Saludos desde la Web")
