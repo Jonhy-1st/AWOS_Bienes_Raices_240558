@@ -1,0 +1,26 @@
+{
+  "name": "awos_bienes_raices_240558",
+  "version": "1.0.0",
+  "description": "Configuración inicial del servidor",
+  "homepage": "https://github.com/Jonhy-1st/AWOS_Bienes_Raices_240558#readme",
+  "bugs": {
+    "url": "https://github.com/Jonhy-1st/AWOS_Bienes_Raices_240558/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jonhy-1st/AWOS_Bienes_Raices_240558.git"
+  },
+  "license": "ISC",
+  "author": "Jonhy Neri Hernández",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "server": "nodemon index.js"
+  },
+    "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
