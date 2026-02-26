@@ -90,7 +90,6 @@ router.delete("/deleteProperty/:id", (req, res) => {
         message: `Se ha solicitado eliminar la propiedad con el id ${id}`
     })
 })
-
 router.get("/login", (req, res) => {
     console.log("El usuario desea acceder al sistema")
     res.status(200).send(`<h1>Por favor introduce tus credenciales de acceso </h1>
