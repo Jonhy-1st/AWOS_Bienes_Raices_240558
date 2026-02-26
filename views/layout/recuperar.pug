@@ -1,0 +1,26 @@
+extends ../layout/index
+    
+block contenido
+    .py-10
+        h1.text-4xl.my-10.font-extrabold.text-center.text-lime-400 Bienes
+            span.font-normal.text-black Raíces 
+        h2.text-center.text-2xl.font-normal.text-black= pagina
+
+    .mt-8.mx-auto.max-w-xl.pb-5
+        .bg-with.py-8.px-4.shadow-2xl.rounded-2xl
+            form.space-y-5    
+                div.px-5
+                    
+                    label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="emailUsuario") Correo electronico:
+                    input#emailUsuario.w-full.border.border-gray-300.px-3.py-2.rounded-xl.placeholder-gray-400(placeholder="p.e.: usuario@dominio.com" 
+                    name="emailUsuario" type="email")
+
+                    //- activar el ojito para para poder ver la contraseña
+                    
+
+                input(class="w-full bg-lime-400 hover:bg-lime-500 hover:transition text-gray-500 hover:text-white font-bold py-3 cursor-pointer shadow-lg rounded-4xl uppercase" 
+                type="submit" value="Enviar correo de recuperación")
+
+                div.flex.items-center.justify-between.pt-3
+                    a(class="text-gray-500 text-sm hover:decoration-lime-400 hover:underline transition decoration-2" href="/auth/login") ¿Ya tienes cuenta? Inicia sesión
+                    a(class="text-gray-500 text-sm hover:decoration-lime-400 hover:underline transition decoration-2" href="/auth/registro") ¿No tienes cuenta? Registrate
