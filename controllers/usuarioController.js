@@ -1,15 +1,19 @@
 const formularioLogin = (req, res) => {
-    res.render('auth/login', {pagina: "Ingresa los datos de la cuenta"});
+    res.render('auth/login', {
+        autentificado: false,
+        nombre: '',
+        titulo: 'Iniciar Sesión'
+    });
+    res.render('auth/login', {pagina: "Inicia Sesión"});
 }
 
 const formularioRegistro = (req, res) => {
+    res.render('auth/registro', {
+        
+    });
     res.render('auth/registro',  {pagina: "Registrate con nosotros"});
 }
 
-const formualrioRecuperar = (req, res) => {
-    res.render('auth/recuperar', {pagina: "Te enviaremos un email con la liga de restauración de contraseña"});
-}
-
 export {
-    formularioLogin, formularioRegistro, formualrioRecuperar
+    formularioLogin, formularioRegistro
 }
