@@ -22,7 +22,11 @@
     "pug": "^3.0.3"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "@tailwindcss/postcss": "^4.2.1",
+    "nodemon": "^3.1.11",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
+    "tailwindcss": "^4.2.1"
   },
   "keywords": []
 }
