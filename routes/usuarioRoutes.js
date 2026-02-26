@@ -1,16 +1,20 @@
 import express, { json } from "express"
 import  { formularioLogin} from '../controllers/usuarioController.js';
 import { formularioRegistro } from "../controllers/usuarioController.js";
+import { formularioRecuperar } from "../controllers/usuarioController.js";
+
+
 
 //creamos el ruteador
 
 const router = express.Router();
 
 //Definimos las rutas 
-
+        
 //Ejemplo de ENDPOINT GET 
 router.get("/login", formularioLogin )
 router.get("/registro", formularioRegistro )
+router.get("/recuperar", formularioRecuperar )
 
 
 router.get("/registro2", formularioRegistro )
@@ -99,9 +103,12 @@ router.delete("/deleteProperty/:id", (req, res) => {
     })
 })
 
+
 router.get("/saludo/:nombre", (req, res)=>
     {
         const {nombre} = req.params;
         console.log(`El usuario: ${nombre}`)
         res.status(200).send(`<p>Bienvenido <b>${nombre}</b></p> </h1`)       
     })
+
+export default router;

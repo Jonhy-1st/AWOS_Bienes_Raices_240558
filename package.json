@@ -12,21 +12,27 @@
   },
   "license": "ISC",
   "author": "Jonhy Neri Hernández",
-  "type": "commonjs",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "server": "nodemon index.js"
+    "server": "nodemon index.js",
+    "watch:css": "postcss src/css/styles.css -o public/css/styles.css --watch",
+    "build:css": "postcss src/css/styles.css -o public/css/styles.css"
   },
   "dependencies": {
     "express": "^5.2.1",
-    "pug": "^3.0.3"
+    "mysql2": "^3.18.1",
+    "pug": "^3.0.3",
+    "sequelize": "^6.37.7"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "^4.1.18",
     "@tailwindcss/postcss": "^4.2.1",
+    "autoprefixer": "^10.4.27",
+    "dotenv": "^17.3.1",
     "nodemon": "^3.1.11",
     "postcss": "^8.5.6",
     "postcss-cli": "^11.0.1",
     "tailwindcss": "^4.2.1"
-  },
-  "keywords": []
+  }
 }
