@@ -20,7 +20,9 @@
     "build:css": "postcss src/css/styles.css -o public/css/styles.css"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "express": "^5.2.1",
+    "express-validator": "^7.3.1",
     "mysql2": "^3.18.1",
     "pug": "^3.0.3",
     "sequelize": "^6.37.7"
