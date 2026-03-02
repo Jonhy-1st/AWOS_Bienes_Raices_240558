@@ -1,108 +1,80 @@
-import express, { json } from "express"
-import { formularioLogin, registrarUsuario } from '../controllers/usuarioController.js';
-import { formularioRegistro } from "../controllers/usuarioController.js";
-import { formualrioRecuperar } from "../controllers/usuarioController.js"; // Nota: Mantengo tu typo "formualrio"
+import express from "express"
+// Importamos todas las funciones necesarias desde el controlador en una sola línea
+import { 
+    formularioLogin, 
+    formularioLogin2, // <--- Nueva función importada
+    registrarUsuario, 
+    formularioRegistro, 
+    formualrioRecuperar 
+} from '../controllers/usuarioController.js';
 
-// creamos el ruteador
 const router = express.Router();
 
-// Definimos las rutas 
-        
-// Ejemplo de ENDPOINT GET 
-router.get("/login", formularioLogin )
-router.get("/registro", formularioRegistro )
-// Se cambia .get por .post para que acepte el envío del formulario de registro.pug
-router.post("/registro", registrarUsuario) 
+// --- RUTAS DE AUTENTICACIÓN ---
 
-router.get("/recuperar", formualrioRecuperar )
+// Ruta original
+router.get("/login", formularioLogin)
+
+// NUEVA RUTA: Ahora puedes acceder a login2
+router.get("/login2", formularioLogin2) 
+
+router.get("/registro", formularioRegistro)
+router.post("/registro", registrarUsuario) 
+router.get("/recuperar", formualrioRecuperar)
+
+// --- EJEMPLOS DE ENDPOINTS API ---
 
 router.get("/", (req, res) => {
     console.log("Bienvenid@ al sistema de Bienes Raices")
-    console.log("Procesando una petición del tipo GET");
     res.json({
-        status:200, 
+        status: 200, 
         message: "Solicitud recibida através del metodo GET"
     })
 })
 
-// Ejemplo de ENDPOINT POST
 router.post("/", (req, res) => {
-    console.log("Procesando una petición del tipo POST");
     res.json({
-        status:200, 
+        status: 200, 
         message: "Lo sentimos, no se aceptan peticiones POST"
     })
 })
 
-// Ejemplo de un ENDPOINT POST - Simular la creacionde un nuevo usuario
 router.post("/createUser", (req, res) => {
-    console.log("Procesando una petición del tipo POST");
-    console.log("Se ha solicitado crear un nuevo usuario.")
-    const nuevoUsuario = 
-    {
+    const nuevoUsuario = {
         nombre: "Jonhy Neri Hernández",
-        correo:  "240558@utxicotepec.edu.mx"
+        correo: "240558@utxicotepec.edu.mx"
     }
     res.json({
-        status:200,
+        status: 200,
         message: `Se he solicitado la creación de un usuario de nombre: ${nuevoUsuario.nombre} y correo ${nuevoUsuario.correo}`,
     })
 })
 
-// Ejemplo de un ENPOINT PUT - Simular la actualización de los datos de un usuario creado 
 router.put("/updateUser", (req, res) => {
-    console.log("Procesando una petición del tipo PUT");
-    console.log("Se ha solicitado ka actualización de los datos del usuario, siendo PUT una actualizacón completa")
-        const usuario = 
-    {
-        nombre: "Jonhy Neri Hernández",
-        correo:  "240558@utxicotepec.edu.mx"
-    }
-    const usuarioActualizado =
-    {
-        nombre: "Jonhy Neri Hernández",
-        correo: "jonhy@gmail.com"
-    }
     res.json ({
         status: 200,
-        message: `Se he solicitado la actualización completa delos datos de nombre: ${usuario.nombre} y correo ${usuario.correo} a ${usuarioActualizado.nombre} y correo ${usuarioActualizado.correo}`,
+        message: "Se ha solicitado la actualización de los datos del usuario"
     })
 })
 
-// Ejemplo de un ENDPOINT PATCH - Simular la actualización de la contraseña del usuario
 router.patch("/updatePassword/:nuevoPassword", (req, res) => {
-    console.log("Procesando una petición del tipo PATCH");
-    console.log("Se ha solicitado la actualización de la contraseña, siendo PATCH una actualización parcial")
-    const usuario = 
-    {
-        nombre: " Jonhy Neri Hernández",
-        correo:  "240558@utxicotepec.edu.mx",
-        password: "12345678"
-    }
-    const { nuevoPassword } = req.params; // Se usa el parámetro de la URL
     res.json ({
         status: 200,
-        message: `Se ha solicitadi la actualización parcial de la contraseña del usuario de nombre 
-        ${usuario.nombre} y correo ${usuario.correo} a la nueva contraseña enviada por parámetro.`
+        message: "Se ha solicitado la actualización parcial de la contraseña"
     })
 })
 
-// Ejemplo de un ENDPOINT DELETE 
 router.delete("/deleteProperty/:id", (req, res) => {
-    console.log("Procesando una petición del tipo DELETE");
     const {id} = req.params;
-
     res.json({
         status: 200,
         message: `Se ha solicitado eliminar la propiedad con el id ${id}`
     })
 })
 
-router.get("/saludo/:nombre", (req, res)=>
-    {
-        const {nombre} = req.params;
-        console.log(`El usuario: ${nombre}`)
-        res.status(200).send(`<p>Bienvenido <b>${nombre}</b></p>`)       
-    })
+router.get("/saludo/:nombre", (req, res) => {
+    const {nombre} = req.params;
+    res.status(200).send(`<p>Bienvenido <b>${nombre}</b></p>`)       
+})
 
 export default router;

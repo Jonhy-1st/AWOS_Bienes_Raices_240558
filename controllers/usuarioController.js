@@ -1,52 +1,103 @@
+import { generarToken } from '../lib/token.js';
 import Usuario from '../models/Usuario.js';
 import { check, validationResult } from 'express-validator';
 
 const formularioLogin = (req, res) => {
-    res.render('auth/login', { pagina: "Ingresa los datos de la cuenta" });
+    res.render('auth/login', { 
+        pagina: "Iniciar Sesión" 
+    });
+}
+
+// --- NUEVA FUNCIÓN PARA LOGIN2 ---
+const formularioLogin2 = (req, res) => {
+    res.render('auth/login2', { // Asegúrate de tener el archivo views/auth/login2.pug
+        pagina: "Iniciar Sesión (V2)" 
+    });
 }
 
 const formularioRegistro = (req, res) => {
-    res.render('auth/registro', { pagina: "Registrate con nosotros" });
+    res.render('auth/registro', { 
+        pagina: "Crea tu cuenta" 
+    });
 }
 
 const formualrioRecuperar = (req, res) => {
-    res.render('auth/recuperar', { pagina: "Te enviaremos un email con la liga de restauración de contraseña" });
+    res.render('auth/recuperar', { 
+        pagina: "Recupera tu acceso a Bienes Raíces" 
+    });
 }
 
 const registrarUsuario = async (req, res) => {
-
-    console.log("Intentando registrar un nuevo usuario:");
-    console.log(req.body);
-
-    // Validación de los datos del formulario
-    await check('nombreUsuario').notEmpty().withMessage("El nombre de la persona no puede ser vacio").run(req); // Verificar que el campo de nombre de usuario no esté vacío
-    await check('emailUsuario').notEmpty().withMessage("El correo electronico no puede ser vacio").isEmail().withMessage
-    ("El correo no tiene formato adecuado").run(req);
-    await check('passwordUsuario').notEmpty().withMessage("La contraseña no puede ser vacia").isLength({min : 8 , max : 30 }).withMessage
-    ("La longitud de la contraseña debe ser entre 8 y 30 caracteres").run(req);
-    await check("confirmUsuario").equals(req.body.passwordUsuario).withMessage
-    ("Ambas contraseñas deben de ser iguales").run(req);
-    let resultadoValidacion = validationResult(req);
+    console.log("Intentando registrar a un usuario Nuevo con los datos del formulario:");
     
-    
-    // Verificación de si el resultado de validación NO está vacío (hay errores)
-    if (resultadoValidacion.isEmpty()) {
-       const data = 
-       {
-            nombre: req.body.nombreUsuario,
-            email: req.body.emailUsuario,
-            password: req.body.passwordUsuario
-       }
-       const usuario = await Usuario.create(data);
-       res.json(usuario)
-    }else{
-        res.render("auth/registro",{
-            pagina: "Error al intentar crear una cuenta",
-            errores: resultadoValidacion.array()});        }
+    // 1. Validaciones
+    await check('nombreUsuario').notEmpty().withMessage("El nombre no puede ir vacío").run(req);
+    await check('emailUsuario').isEmail().withMessage("Eso no parece un email").run(req);
+    await check('passwordUsuario').isLength({ min: 8 }).withMessage("La contraseña debe ser de al menos 8 caracteres").run(req);
+    await check('confirmUsuario').equals(req.body.passwordUsuario).withMessage("Las contraseñas no coinciden").run(req);
+
+    let resultado = validationResult(req);
+
+    // 2. Verificar errores de validación inicial
+    if (!resultado.isEmpty()) {
+        return res.render('auth/registro', {
+            pagina: 'Crea tu cuenta',
+            errores: resultado.array(),
+            usuario: {
+                nombreUsuario: req.body.nombreUsuario,
+                emailUsuario: req.body.emailUsuario
+            }
+        });
     }
+
+    // 3. Extraer datos del body
+    const { nombreUsuario:name, emailUsuario:email, passwordUsuario:password } = req.body;
+
+    // 4. Verificar si el usuario ya existe
+    const existeUsuario = await Usuario.findOne({ where: {email} });
+
+    if (existeUsuario) {
+        return res.render('auth/registro', {
+            pagina: 'Registrate con nosotros',
+            errores: [{ msg: 'El usuario ya está registrado' }],
+            usuario: { 
+                nombreUsuario: name, // Corregido para usar la variable 'name' extraída arriba
+                emailUsuario: email   // Corregido para usar la variable 'email' extraída arriba
+            }
+        });
+    }
+
+    // CORRECCIÓN: Se cambió 'resultadoValidacion' por 'resultado' para que coincida con tu variable
+    if (resultado.isEmpty()) { 
+        const data = {
+            nombre: name, // Asegúrate que tu modelo use 'nombre' o cámbialo a 'name' según tu DB
+            email,
+            password,
+            token: generarToken()
+        }
+        await Usuario.create(data);
+        
+        // CORRECCIÓN: Se arregló el paréntesis de res.render y el nombre de la variable de resultado
+        res.render("templates/mensaje", {
+            pagina :"Bienvenido al sistema de Bienes Raíces",
+            msg: `La cuenta asociada al correo: ${email}, se ha creado exitosamente, te pedimos confirmar tu cuenta atraves de tu correo electronico que te hemos enviado`
+        });
+
+    } else {
+        res.render('auth/registro', {
+            pagina: "Error al intentar crear una cuenta", 
+            errores: resultado.array(), // Corregido de resultadoValidacion a resultado
+            usuario: { 
+                nombreUsuario: name,
+                emailUsuario: email 
+            }
+        });
+    }
+}
 
 export {
     formularioLogin,
+    formularioLogin2,
     formularioRegistro,
     formualrioRecuperar,
     registrarUsuario
