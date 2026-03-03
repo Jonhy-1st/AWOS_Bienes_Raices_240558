@@ -2,10 +2,11 @@ import express from "express"
 // Importamos todas las funciones necesarias desde el controlador en una sola línea
 import { 
     formularioLogin, 
-    formularioLogin2, // <--- Nueva función importada
+    formularioLogin2, 
     registrarUsuario, 
     formularioRegistro, 
-    formualrioRecuperar 
+    formualrioRecuperar,
+    paginaConfirmacion
 } from '../controllers/usuarioController.js';
 
 const router = express.Router();
@@ -21,7 +22,7 @@ router.get("/login2", formularioLogin2)
 router.get("/registro", formularioRegistro)
 router.post("/registro", registrarUsuario) 
 router.get("/recuperar", formualrioRecuperar)
-
+router.get("/confirma/:token", paginaConfirmacion)
 // --- EJEMPLOS DE ENDPOINTS API ---
 
 router.get("/", (req, res) => {

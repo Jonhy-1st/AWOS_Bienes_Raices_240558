@@ -1,6 +1,9 @@
 import { generarToken } from '../lib/token.js';
 import Usuario from '../models/Usuario.js';
 import { check, validationResult } from 'express-validator';
+import { emailRegistro } from '../lib/emails.js';
+
+
 
 const formularioLogin = (req, res) => {
     res.render('auth/login', { 
@@ -21,11 +24,6 @@ const formularioRegistro = (req, res) => {
     });
 }
 
-const formualrioRecuperar = (req, res) => {
-    res.render('auth/recuperar', { 
-        pagina: "Recupera tu acceso a Bienes Raíces" 
-    });
-}
 
 const registrarUsuario = async (req, res) => {
     console.log("Intentando registrar a un usuario Nuevo con los datos del formulario:");
@@ -75,7 +73,16 @@ const registrarUsuario = async (req, res) => {
             password,
             token: generarToken()
         }
-        await Usuario.create(data);
+        const usuario = await Usuario.create(data);
+
+        //Enviar correo electronico
+        emailRegistro({
+            nombre: usuario.name,
+            email: usuario.email,
+            token: usuario.token
+        })
+
+
         
         // CORRECCIÓN: Se arregló el paréntesis de res.render y el nombre de la variable de resultado
         res.render("templates/mensaje", {
@@ -94,11 +101,46 @@ const registrarUsuario = async (req, res) => {
         });
     }
 }
+const paginaConfirmacion = async (req,res) =>
+{
+    const {token: tokenCuenta} = req.params
+    console.log("Confirmando la cuenta asociada al token: ", tokenCuenta)
+
+    //Confirmar soi el token existe
+    const usuarioToken = await(Usuario.findOne({where:{token:tokenCuenta}}))
+    console.log(usuarioToken);
+if(!usuarioToken)
+{
+    return res.render("templates/mensaje",{ // 'return' para detener la ejecución
+        pagina: "Error al confirmar la cuenta",
+        msg: `El código de verificación no es válido, por favor inténtalo de nuevo.`
+    });
+}
+
+    //Actualizar los datos del usuario.
+    usuarioToken.token=null;
+    usuarioToken.confirmed=true;
+    usuarioToken.save();
+
+    res.render("templates/mensaje",{
+            title: "Confirmacion exitosa",
+            msg: `La cuenta de: ${usuarioToken.name}, asociada al correo electronico: ${usuarioToken.email}
+                se ha confirmado, ahora ya puedes ingresar a la plataforma`
+        });
+
+}
+
+const formualrioRecuperar = (req, res) => {
+    res.render('auth/recuperar', { 
+        pagina: "Recupera tu acceso a Bienes Raíces" 
+    });
+}
 
 export {
     formularioLogin,
     formularioLogin2,
     formularioRegistro,
     formualrioRecuperar,
-    registrarUsuario
+    registrarUsuario,
+    paginaConfirmacion
 }
