@@ -20,8 +20,11 @@
     "build:css": "postcss src/css/styles.css -o public/css/styles.css"
   },
   "dependencies": {
+    "@dr.pogodin/csurf": "^1.16.8",
     "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
     "express-validator": "^7.3.1",
     "mysql2": "^3.18.1",
     "nodemailer": "^8.0.1",
