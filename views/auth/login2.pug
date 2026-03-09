@@ -1,0 +1,49 @@
+extends ../layout/index
+    
+block contenido
+    .py-10
+        h1.text-4xl.my-10.font-extrabold.text-center.text-indigo-400 Bienes
+            span.font-normal.text-black Raíces 
+        h2.text-center.text-2xl.font-normal.text-black= pagina
+
+    .mt-8.mx-auto.max-w-xl.pb-5
+        .bg-white.py-8.px-4.shadow-2xl.rounded-2xl
+            form.space-y-5(method="POST" action="/auth/login")    
+                div.px-5
+                    label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="emailUsuario") Correo electrónico:
+                    input#emailUsuario.w-full.border.border-gray-300.px-3.py-2.rounded-xl.placeholder-gray-400(placeholder="p.e.: usuario@dominio.com" name="emailUsuario" type="email")
+
+                div.px-5
+                    label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="passwordUsuario") Contraseña:
+                    input#passwordUsuario.w-full.border.border-gray-300.px-3.py-2.rounded-xl.placeholder-gray-400(placeholder="Por lo menos 8 caracteres" name="passwordUsuario" type="password")
+
+                    div.flex.items-center.gap-2.mt-1
+                        input#verP1(type="checkbox" class="cursor-pointer" onclick="document.getElementById('passwordUsuario').type = this.checked ? 'text' : 'password'")
+                        label.text-xs.text-gray-500.cursor-pointer(for="verP1") Mostrar contraseña    
+
+                input(class="w-full bg-indigo-600 text-white hover:bg-indigo-700 font-bold py-3 cursor-pointer shadow-lg hover:shadow-xl uppercase rounded-2xl transition-all duration-300" type="submit" value="Iniciar Sesión")
+            
+            //- Divisor para Redes Sociales
+            .mt-6.px-5
+                .relative
+                    .absolute.inset-0.flex.items-center
+                        .w-full.border-t.border-gray-300
+                    .relative.flex.justify-center.text-xs.uppercase
+                        span.bg-white.px-2.text-gray-400 O continuar con
+
+                .grid.grid-cols-2.gap-3.mt-6
+                    a(href="/auth/google" class="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors")
+                        img(src="https://www.svgrepo.com/show/475656/google-color.svg" class="h-5 w-5 mr-2" alt="Google")
+                        span Google
+                    
+                    a(href="/auth/github" class="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors")
+                        img(src="https://www.svgrepo.com/show/512317/github-142.svg" class="h-5 w-5 mr-2" alt="Github")
+                        span GitHub
+
+            div.flex.items-center.justify-between.pt-6.px-5
+                a(class="text-sm text-gray-500 hover:underline hover:text-indigo-600" href="/auth/registro") ¿No tienes cuenta? Regístrate
+                a(class="text-sm text-gray-500 hover:underline hover:text-indigo-600" href="/auth/recuperar") Olvidé mi contraseña
+
+    footer.text-gray-500.py-6.mt-10
+        .max-w-7xl.mx-auto.text-center.text-sm
+            p © 2026 Jonhy Neri Hernández - 240558
