@@ -8,9 +8,6 @@ import csurf from "@dr.pogodin/csurf";
 const app = express(); 
 const PORT = process.env.PORT ?? 3000; 
 
-// Conexión a la base de datos
-await connectDB();
-
 // Habilitar Pug
 app.set('view engine', 'pug'); 
 app.set('views', './views'); 
@@ -48,6 +45,22 @@ app.use((req, res, next) => {
 
 // --- RUTAS ---
 app.use("/auth", usuarioRoutes); 
+// Conexión a la base de datos
+await connectDB();
+
+// Cachear el error
+app.use((err, req, res, next) => {
+    if (err.code === "EBADCSRFTOKEN") {
+        return res.status(403).render("templates/mensaje", {
+            pagina: "Error de seguridad",
+            title: "Error CSRF",
+            msg: "El formulario expiró o fue manipulado. Recarga la página."
+        });
+    }
+
+    next(err);
+});
+
 
 // --- SERVIDOR ---
 app.listen(PORT, () => { 
