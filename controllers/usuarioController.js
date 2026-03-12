@@ -120,7 +120,7 @@ if(!usuarioToken)
     //Actualizar los datos del usuario.
     usuarioToken.token=null;
     usuarioToken.confirmed=true;
-    usuarioToken.save();
+    await usuarioToken.save();
 
     res.render("templates/mensaje",{
             title: "Confirmacion exitosa",
@@ -136,11 +136,54 @@ const formualrioRecuperar = (req, res) => {
     });
 }
 
+const formularioActualizacionPassword = (req ,res) =>{
+    res.rener (auth/resetearPassword, {pagina: "Ingrese la contraseña"})
+}
+
+const resetearPassword = async (req, res) => {
+    const  { emailUsuario : usuarioSolicitante } = req.body
+    console.log(`El usuario con correo ${usuarioSolicitante} está solicitando un reseteo de contraseña.`)
+
+    //Validación 1
+    const usuario = await Usuario.findOne({where: { email: usuarioSolicitante }});
+    //SELECT email FROM tb_usuarios WHERE email = usuarioSolicitante //SQL Injection
+    if(!usuario) {
+            res.render("templates/mensaje", {
+                pagina: "Error al buscar la cuenta",
+                mensaje: `No se ha encontrado ninguna cuenta asociada al correo: ${usuarioSolicitante}`,
+                buttonVisibility: true,
+                buttonText: "Ingresa a BienesRaices-240558",
+                buttonURL: "/auth/recuperar"
+            });
+    }
+
+    else {
+        //Validación 2
+        if (!usuario.confirmado) {
+           res.render("templates/mensaje", {
+                pagina: "Error, la cuenta no está confirmada",
+                mensaje: `La cuenta asociada al correo: ${usuarioSolicitante} no ha sido validad a través de la liga segura enviada al correo electronico.`,
+                buttonVisibility: true,
+                buttonText: "Intentalo de nuevo",
+                buttonURL: "/auth/recuperar"
+            }); 
+        }
+        else {
+            //Actualizar token
+            usuario.token = generarToken();
+            usuario.save();
+        }
+
+    }
+}
+
 export {
     formularioLogin,
     formularioLogin2,
     formularioRegistro,
     formualrioRecuperar,
     registrarUsuario,
-    paginaConfirmacion
+    paginaConfirmacion,
+    resetearPassword,
+    formularioActualizacionPassword
 }

@@ -13,13 +13,15 @@ block contenido
 
     .mt-8.mx-auto.max-w-xl
         .bg-white.py-8.px-4.shadow-2xl.rounded-2xl
-            form.space-y-5(action="/auth/recuperar" method="POST")
+            form.space-y-5(method="POST" action="/auth/recuperar" noValidate)
+
+                input(type="hidden" name="_csrf" value=csrfToken)
                 
                 div.px-5
                     label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="correoUsuario") Correo Electrónico:
-                    input#correoUsuario.w-full.border.border-gray-300.px-3.py-2.rounded-xl.placeholder-gray-400(
+                    input#emailUsuario.w-full.border.border-gray-300.px-3.py-2.rounded-xl.placeholder-gray-400(
                         placeholder="Tu Email"
-                        name="correoUsuario"
+                        name="emailUsuario"
                         type="email"
                         required
                     )
@@ -29,7 +31,7 @@ block contenido
                     type="submit"
                     value="Enviar instrucciones"
                 )
-                div.flex.items-center.justify-between.pt-3
-                    a(class="text-gray-500 text-sm hover:decoration-purple-600 hover:underline transition decoration-2" href="/auth/login") ¿Ya tienes cuenta? Inicia Sesión
-                    a(class="text-gray-500 text-sm hover:decoration-purple-600 hover:underline transition decoration-2" href="/auth/recuperar") ¿Olvidaste tu contraseña? Recuperar contraseña
 
+                div.flex.items-center.justify-between.pt-3.px-5
+                    a(class="text-gray-500 text-sm hover:decoration-purple-600 hover:underline transition decoration-2" href="/auth/login") ¿Ya tienes cuenta? Inicia Sesión
+                    a(class="text-gray-500 text-sm hover:decoration-purple-600 hover:underline transition decoration-2" href="/auth/registro") ¿No tienes cuenta? Regístrate

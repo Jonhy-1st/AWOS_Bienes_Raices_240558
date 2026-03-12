@@ -6,7 +6,9 @@ import {
     registrarUsuario, 
     formularioRegistro, 
     formualrioRecuperar,
-    paginaConfirmacion
+    paginaConfirmacion, 
+    resetearPassword,
+    formularioActualizacionPassword
 } from '../controllers/usuarioController.js';
 
 const router = express.Router();
@@ -23,6 +25,10 @@ router.get("/registro", formularioRegistro)
 router.post("/registro", registrarUsuario) 
 router.get("/recuperar", formualrioRecuperar)
 router.get("/confirma/:token", paginaConfirmacion)
+router.get("/actualizarPassword/:token", formularioActualizacionPassword)
+
+router.post("/registro", registrarUsuario)
+router.post("/recuperar", resetearPassword)
 // --- EJEMPLOS DE ENDPOINTS API ---
 
 router.get("/", (req, res) => {
