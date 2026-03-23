@@ -1,8 +1,8 @@
-import express from "express"
-// Importamos todas las funciones necesarias desde el controlador
+import express from "express";
+import passport from 'passport'; // Necesario para Discord y GitHub
 import { 
     formularioLogin, 
-    autenticarUsuario,      // Procesar el login (Test 9 y 10)
+    autenticarUsuario,      
     formularioLogin2, 
     registrarUsuario, 
     formularioRegistro, 
@@ -11,7 +11,7 @@ import {
     resetearPassword,
     formularioActualizacionPassword,
     actualizarPassword,
-    desbloquearCuenta       // Función para el Extra de desbloqueo
+    desbloquearCuenta       
 } from '../controllers/usuarioController.js';
 
 const router = express.Router();
@@ -44,6 +44,28 @@ router.post("/actualizarPassword/:token", actualizarPassword);
 router.get("/desbloquear/:token", desbloquearCuenta);
 
 // ==========================================
+//      AUTENTICACIÓN CON REDES SOCIALES
+// ==========================================
+
+// --- DISCORD ---
+router.get('/discord', passport.authenticate('discord'));
+
+router.get('/discord/callback', passport.authenticate('discord', {
+    failureRedirect: '/auth/login',
+    successRedirect: '/auth/mis-propiedades',
+    session: true
+}));
+
+// --- GITHUB ---
+router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+
+router.get('/github/callback', passport.authenticate('github', {
+    failureRedirect: '/auth/login',
+    successRedirect: '/auth/mis-propiedades',
+    session: true
+}));
+
+// ==========================================
 //      PANEL DE ADMINISTRACIÓN (DASHBOARD)
 // ==========================================
 
@@ -51,18 +73,28 @@ router.get("/desbloquear/:token", desbloquearCuenta);
 router.get("/mis-propiedades", (req, res) => {
     res.render('auth/main/mis-propiedades', {
         pagina: 'Mis Propiedades',
-        barra: true 
+        barra: true,
+        // Enviamos el token CSRF para que el botón de cerrar sesión funcione
+        csrfToken: req.csrfToken ? req.csrfToken() : '' 
     });
 });
 
-// Ruta para cerrar sesión (Limpia la cookie y redirige)
-router.post('/cerrar-sesion', (req, res) => {
-    return res.clearCookie('_token').status(200).redirect('/auth/login');
+// Ruta para cerrar sesión (Limpia la cookie y finaliza sesión de Passport)
+router.post('/cerrar-sesion', (req, res, next) => {
+    // Si entró por red social, Passport maneja el logout así:
+    if (req.logout) {
+        req.logout((err) => {
+            if (err) return next(err);
+            res.clearCookie('_token').redirect('/auth/login');
+        });
+    } else {
+        res.clearCookie('_token').redirect('/auth/login');
+    }
 });
 
 
 // ==========================================
-//        EJEMPLOS DE ENDPOINTS (API)
+//         EJEMPLOS DE ENDPOINTS (API)
 // ==========================================
 
 router.get("/", (req, res) => {

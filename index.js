@@ -4,6 +4,8 @@ import db, { connectDB } from "./config/db.js"; // Importamos db para el sync
 import session from "express-session";
 import cookieParser from "cookie-parser";
 import csurf from "@dr.pogodin/csurf";
+import passport from "passport";            
+import "./config/passport.js";
 
 // 1. PRIMERO DECLARAR LA APP
 const app = express(); 

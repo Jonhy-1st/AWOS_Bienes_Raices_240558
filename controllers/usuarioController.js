@@ -45,7 +45,7 @@ const autenticarUsuario = async (req, res) => {
         return res.render('auth/login', {
             pagina: 'Iniciar Sesión',
             csrfToken: req.csrfToken(),
-            errores: resultado.array() // Semaforización: Errores de formulario (Rojo)
+            errores: resultado.array() 
         });
     }
 

@@ -22,7 +22,7 @@ html(lang="es")
                             p(class="text-slate-700 font-bold text-sm") Jonhy Neri
                         div(class="w-11 h-11 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold shadow-md ring-4 ring-indigo-50") J
 
-                    form(action="/auth/cerrar-sesion" method="POST")
+                    form(action="/auth/login" method="POST")
                         input(type="hidden" name="_csrf" value=csrfToken)
                         input(
                             type="submit"
