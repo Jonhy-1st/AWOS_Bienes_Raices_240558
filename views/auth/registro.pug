@@ -21,27 +21,33 @@ block contenido
                     input#nombreUsuario.w-full.border.border-gray-300.px-3.py-2.rounded-xl.placeholder-gray-400(placeholder="P.e: Jonhy Neri Hernandez" name="nombreUsuario" value= usuario ? usuario.nombreUsuario: '' type="text")
                 
                 div.px-5
-                    label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="correoUsuario") Correo Electrónico:
-                    input#emailUsuario.w-full.border.border-gray-300.px-3.py-2.rounded-xl.placeholder-gray-400(placeholder="P.e: usuario@gmail.com" name="emailUsuario" value= usuario ? usuario.emailUsuario: '' type="email")  
+                    label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="emailUsuario") Correo Electrónico:
+                    input#emailUsuario.w-full.border.border-gray-300.px-3.py-2.rounded-xl.placeholder-gray-400(placeholder="P.e: correo@dominio.com" name="emailUsuario" value= usuario ? usuario.emailUsuario: '' type="email")  
 
                 div.px-5
                     label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="passwordUsuario") Contraseña:
                     input#passwordUsuario.w-full.border.border-gray-300.px-3.py-2.rounded-xl.placeholder-gray-400(placeholder="Por lo menos 8 caracteres" name="passwordUsuario" type="password")
 
-                div.px-5.flex.items-center.gap-2.mt-1
-                    input#verP1(type="checkbox" class="cursor-pointer" onclick="document.getElementById('passwordUsuario').type = this.checked ? 'text' : 'password'")
-                    label.text-xs.text-gray-500.cursor-pointer(for="verP1") Mostrar contraseña
+                    div.flex.items-center.gap-2.mt-1
+                        input#verP1(type="checkbox" class="cursor-pointer" onclick="document.getElementById('passwordUsuario').type = this.checked ? 'text' : 'password'")
+                        label.text-xs.text-gray-500.cursor-pointer(for="verP1") Mostrar contraseña
 
                 div.px-5
-                    label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="confirmUsuario") Confirmar contraseña:
-                    input#confirmUsuario.w-full.border.border-gray-300.px-3.py-2.rounded-xl.placeholder-gray-400(placeholder="Repite la contraseña anterior" name="confirmUsuario" type="password")
+                    //- CORRECCIÓN: Se cambió confirmUsuario por confirmacionUsuario
+                    label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="confirmacionUsuario") Confirmar contraseña:
+                    input#confirmacionUsuario.w-full.border.border-gray-300.px-3.py-2.rounded-xl.placeholder-gray-400(placeholder="Repite la contraseña anterior" name="confirmacionUsuario" type="password")
 
-                div.px-5.flex.items-center.gap-2.mt-1
-                    input#verP2(type="checkbox" class="cursor-pointer" onclick="document.getElementById('confirmUsuario').type = this.checked ? 'text' : 'password'")
-                    label.text-xs.text-gray-500.cursor-pointer(for="verP2") Mostrar contraseña
+                    div.flex.items-center.gap-2.mt-1
+                        input#verP2(type="checkbox" class="cursor-pointer" onclick="document.getElementById('confirmacionUsuario').type = this.checked ? 'text' : 'password'")
+                        label.text-xs.text-gray-500.cursor-pointer(for="verP2") Mostrar contraseña
 
-                input(class="w-full bg-purple-600 hover:bg-purple-400 hover:transition text-white hover:text-white font-bold py-3 cursor-pointer shadow-lg rounded-4xl uppercase" type="submit" value="Registrar Usuario")
+                input(class="w-full bg-purple-600 hover:bg-purple-400 hover:transition text-white font-bold py-3 cursor-pointer shadow-lg rounded-4xl uppercase" type="submit" value="Registrar Usuario")
 
                 div.flex.items-center.justify-between.pt-3
                     a(class="text-gray-500 text-sm hover:decoration-purple-600 hover:underline transition decoration-2" href="/auth/login") ¿Ya tienes cuenta? Inicia Sesión
-                    a(class="text-gray-500 text-sm hover:decoration-purple-600 hover:underline transition decoration-2" href="/auth/recuperar") ¿Olvidaste tu contraseña? Recuperar contraseña
+                    //- Ajustado a recuperarPassword para consistencia
+                    a(class="text-gray-500 text-sm hover:decoration-purple-600 hover:underline transition decoration-2" href="/auth/recuperarPassword") ¿Olvidaste tu contraseña? Recuperar
+
+    footer.text-gray-500.py-6.mt-10
+        .max-w-7xl.mx-auto.text-center.text-sm
+            p © 2026 Jonhy Neri Hernández - 240558

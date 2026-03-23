@@ -1,0 +1,67 @@
+doctype html
+html(lang="es")
+    head
+        meta(charset="UTF-8")
+        meta(http-equiv="X-UA-Compatible" content="IE=edge")
+        meta(name="viewport" content="width=device-width, initial-scale=1.0")
+        title .: BienesRaices :. - 240558 #{pagina}
+        link(rel="stylesheet" href="/css/styles.css")
+
+    body(class="min-h-screen bg-slate-50")
+
+        header(class="bg-white shadow-sm border-b border-gray-100 py-4")
+            div(class="container mx-auto flex justify-between items-center px-6")
+                h1(class="text-3xl font-black text-indigo-600 tracking-tighter cursor-pointer")
+                    | Bienes 
+                    span(class="font-light text-slate-800") Raíces
+                
+                nav(class="flex items-center gap-8")
+                    div(class="hidden md:flex items-center gap-4 border-r border-gray-200 pr-8")
+                        div(class="text-right")
+                            p(class="text-[10px] uppercase tracking-widest text-indigo-500 font-bold") Administrador
+                            p(class="text-slate-700 font-bold text-sm") Jonhy Neri
+                        div(class="w-11 h-11 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold shadow-md ring-4 ring-indigo-50") J
+
+                    form(action="/auth/cerrar-sesion" method="POST")
+                        input(type="hidden" name="_csrf" value=csrfToken)
+                        input(
+                            type="submit"
+                            class="bg-slate-800 hover:bg-indigo-700 py-2.5 px-6 rounded-xl text-white font-bold uppercase cursor-pointer text-xs transition-all duration-300 shadow-sm"
+                            value="Cerrar Sesión"
+                        )
+
+        main(class="container mx-auto mt-12 px-4 max-w-6xl")
+            div(class="py-5")
+                h2(class="text-center text-4xl font-black text-slate-800 mb-10")= pagina
+
+                div(class="flex justify-center md:justify-start mb-8")
+                    a(
+                        href="/propiedades/crear"
+                        class="group relative inline-flex items-center justify-center px-8 py-3.5 font-bold text-white transition-all duration-200 bg-indigo-600 font-pj rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200"
+                    )
+                        span(class="mr-2 text-lg") +
+                        | Publicar Propiedad
+
+                div(class="bg-white rounded-3xl p-16 flex flex-col items-center justify-center border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.05)] min-h-[500px] transition-all")
+                    div(class="mb-10 relative")
+                        div(class="absolute inset-0 bg-indigo-100 rounded-full blur-2xl opacity-40")
+                        div(class="relative p-8 bg-indigo-50 rounded-full border border-indigo-100")
+                            svg(xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                                path(stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6")
+
+                    div(class="text-center")
+                        p(class="text-slate-800 text-3xl font-black") Tu catálogo está impecable
+                        p(class="text-slate-400 text-lg mt-4 max-w-md mx-auto leading-relaxed")
+                            | Jonhy, aún no tienes propiedades registradas. Dale vida a tu perfil publicando tu primera propiedad.
+
+        block contenido
+
+        footer(class="mt-28 py-12 text-center")
+            div(class="max-w-xs mx-auto border-t border-gray-200 pt-8")
+                p(class="text-slate-400 text-xs font-bold tracking-widest uppercase") Bienes Raíces - AWOS 2026
+                div(class="flex justify-center gap-2 mt-2")
+                    span(class="w-2 h-2 bg-indigo-400 rounded-full")
+                    span(class="w-2 h-2 bg-indigo-200 rounded-full")
+                    span(class="w-2 h-2 bg-indigo-100 rounded-full")
+                p(class="text-indigo-600 text-[10px] mt-4 font-black") Jonhy Neri Hernández • Matrícula: 240558
+                p(class="text-slate-300 text-[9px] uppercase tracking-[0.2em] mt-2") UT Xicotepec de Juárez
