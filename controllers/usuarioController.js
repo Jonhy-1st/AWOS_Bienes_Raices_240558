@@ -1,146 +1,340 @@
-import { generarToken } from '../lib/token.js';
-import Usuario from '../models/Usuario.js';
 import { check, validationResult } from 'express-validator';
-import { emailRegistro } from '../lib/emails.js';
+import Usuario from '../models/Usuario.js';
+import { generarToken } from '../lib/token.js';
+import { emailRegistro, emailResetearPassword, emailCuentaBloqueada } from '../lib/emails.js';
 
-
+// --- VISTAS ---
 
 const formularioLogin = (req, res) => {
     res.render('auth/login', { 
-        pagina: "Iniciar Sesión" 
+        pagina: "Iniciar Sesión",
+        csrfToken: req.csrfToken()
     });
 }
-
-// --- NUEVA FUNCIÓN PARA LOGIN2 ---
 const formularioLogin2 = (req, res) => {
-    res.render('auth/login2', { // Asegúrate de tener el archivo views/auth/login2.pug
-        pagina: "Iniciar Sesión (V2)" 
+    res.render('auth/login2', { 
+        pagina: "Iniciar Sesión (V2)",
+        csrfToken: req.csrfToken()
     });
 }
-
+// Test 1: Interacción Rotativa (Vistas de acceso)
 const formularioRegistro = (req, res) => {
     res.render('auth/registro', { 
-        pagina: "Crea tu cuenta" 
+        pagina: "Crea tu cuenta",
+        csrfToken: req.csrfToken()
     });
-}
-
-
-const registrarUsuario = async (req, res) => {
-    console.log("Intentando registrar a un usuario Nuevo con los datos del formulario:");
-    
-    // 1. Validaciones
-    await check('nombreUsuario').notEmpty().withMessage("El nombre no puede ir vacío").run(req);
-    await check('emailUsuario').isEmail().withMessage("Eso no parece un email").run(req);
-    await check('passwordUsuario').isLength({ min: 8 }).withMessage("La contraseña debe ser de al menos 8 caracteres").run(req);
-    await check('confirmUsuario').equals(req.body.passwordUsuario).withMessage("Las contraseñas no coinciden").run(req);
-
-    let resultado = validationResult(req);
-
-    // 2. Verificar errores de validación inicial
-    if (!resultado.isEmpty()) {
-        return res.render('auth/registro', {
-            pagina: 'Crea tu cuenta',
-            errores: resultado.array(),
-            usuario: {
-                nombreUsuario: req.body.nombreUsuario,
-                emailUsuario: req.body.emailUsuario
-            }
-        });
-    }
-
-    // 3. Extraer datos del body
-    const { nombreUsuario:name, emailUsuario:email, passwordUsuario:password } = req.body;
-
-    // 4. Verificar si el usuario ya existe
-    const existeUsuario = await Usuario.findOne({ where: {email} });
-
-    if (existeUsuario) {
-        return res.render('auth/registro', {
-            pagina: 'Registrate con nosotros',
-            errores: [{ msg: 'El usuario ya está registrado' }],
-            usuario: { 
-                nombreUsuario: name, // Corregido para usar la variable 'name' extraída arriba
-                emailUsuario: email   // Corregido para usar la variable 'email' extraída arriba
-            }
-        });
-    }
-
-    // CORRECCIÓN: Se cambió 'resultadoValidacion' por 'resultado' para que coincida con tu variable
-    if (resultado.isEmpty()) { 
-        const data = {
-            nombre: name, // Asegúrate que tu modelo use 'nombre' o cámbialo a 'name' según tu DB
-            email,
-            password,
-            token: generarToken()
-        }
-        const usuario = await Usuario.create(data);
-
-        //Enviar correo electronico
-        emailRegistro({
-            nombre: usuario.name,
-            email: usuario.email,
-            token: usuario.token
-        })
-
-
-        
-        // CORRECCIÓN: Se arregló el paréntesis de res.render y el nombre de la variable de resultado
-        res.render("templates/mensaje", {
-            pagina :"Bienvenido al sistema de Bienes Raíces",
-            msg: `La cuenta asociada al correo: ${email}, se ha creado exitosamente, te pedimos confirmar tu cuenta atraves de tu correo electronico que te hemos enviado`
-        });
-
-    } else {
-        res.render('auth/registro', {
-            pagina: "Error al intentar crear una cuenta", 
-            errores: resultado.array(), // Corregido de resultadoValidacion a resultado
-            usuario: { 
-                nombreUsuario: name,
-                emailUsuario: email 
-            }
-        });
-    }
-}
-const paginaConfirmacion = async (req,res) =>
-{
-    const {token: tokenCuenta} = req.params
-    console.log("Confirmando la cuenta asociada al token: ", tokenCuenta)
-
-    //Confirmar soi el token existe
-    const usuarioToken = await(Usuario.findOne({where:{token:tokenCuenta}}))
-    console.log(usuarioToken);
-if(!usuarioToken)
-{
-    return res.render("templates/mensaje",{ // 'return' para detener la ejecución
-        pagina: "Error al confirmar la cuenta",
-        msg: `El código de verificación no es válido, por favor inténtalo de nuevo.`
-    });
-}
-
-    //Actualizar los datos del usuario.
-    usuarioToken.token=null;
-    usuarioToken.confirmed=true;
-    usuarioToken.save();
-
-    res.render("templates/mensaje",{
-            title: "Confirmacion exitosa",
-            msg: `La cuenta de: ${usuarioToken.name}, asociada al correo electronico: ${usuarioToken.email}
-                se ha confirmado, ahora ya puedes ingresar a la plataforma`
-        });
-
 }
 
 const formualrioRecuperar = (req, res) => {
     res.render('auth/recuperar', { 
-        pagina: "Recupera tu acceso a Bienes Raíces" 
+        pagina: "Recupera tu acceso",
+        csrfToken: req.csrfToken()
     });
 }
 
+// --- LÓGICA DE AUTENTICACIÓN (LOGIN) ---
+
+const autenticarUsuario = async (req, res) => {
+    // Validación de Datos Backend
+    await check('emailUsuario').isEmail().withMessage('El email es obligatorio').run(req);
+    await check('passwordUsuario').notEmpty().withMessage('La contraseña es obligatoria').run(req);
+
+    let resultado = validationResult(req);
+
+    if (!resultado.isEmpty()) {
+        return res.render('auth/login', {
+            pagina: 'Iniciar Sesión',
+            csrfToken: req.csrfToken(),
+            errores: resultado.array() // Semaforización: Errores de formulario (Rojo)
+        });
+    }
+
+    const { emailUsuario: email, passwordUsuario: password } = req.body;
+
+    // Comprobar si el usuario existe
+    const usuario = await Usuario.findOne({ where: { email } });
+
+    if (!usuario) {
+        return res.render('auth/login', {
+            pagina: 'Iniciar Sesión',
+            csrfToken: req.csrfToken(),
+            errores: [{ msg: 'El usuario no existe' }]
+        });
+    }
+
+    // Test 10: Bloqueo de cuenta por exceso de intentos fallidos (5 intentos)
+    if (usuario.intentos >= 5) {
+        return res.render('auth/login', {
+            pagina: 'Cuenta Bloqueada',
+            csrfToken: req.csrfToken(),
+            errores: [{ msg: 'Tu cuenta está bloqueada por seguridad. Revisa tu correo para desbloquearla.' }]
+        });
+    }
+
+    // Comprobar si el usuario está confirmado
+    if (!usuario.confirmado) {
+        return res.render('auth/login', {
+            pagina: 'Iniciar Sesión',
+            csrfToken: req.csrfToken(),
+            errores: [{ msg: 'Tu cuenta no ha sido confirmada' }]
+        });
+    }
+
+    // Revisar el password
+    if (!usuario.verificarPassword(password)) {
+        // Incrementar intentos fallidos
+        usuario.intentos++;
+        await usuario.save();
+
+        // Lógica de Bloqueo
+        if (usuario.intentos >= 5) {
+            usuario.tokenDesbloqueo = generarToken();
+            await usuario.save();
+            
+            // Enviar correo de bloqueo (Requerimiento Estilización)
+            emailCuentaBloqueada({
+                nombre: usuario.nombre,
+                email: usuario.email,
+                token: usuario.tokenDesbloqueo
+            });
+
+            return res.render('auth/login', {
+                pagina: 'Cuenta Bloqueada',
+                csrfToken: req.csrfToken(),
+                errores: [{ msg: 'Has superado el límite de intentos. Cuenta bloqueada.' }]
+            });
+        }
+
+        // Semaforización: Advertencia naranja (Menos de 5 intentos)
+        return res.render('auth/login', {
+            pagina: 'Iniciar Sesión',
+            csrfToken: req.csrfToken(),
+            errores: [{ msg: `Contraseña incorrecta. Te quedan ${5 - usuario.intentos} intentos.` }]
+        });
+    }
+
+    // Test 9: Logeo Exitoso - Resetear intentos y entrar
+    usuario.intentos = 0;
+    usuario.ultimoAcceso = new Date();
+    await usuario.save();
+
+    // Aquí iría la redirección a "Mis Propiedades"
+    res.redirect('/auth/mis-propiedades');
+}
+
+// --- REGISTRO Y VALIDACIÓN ---
+
+const registrarUsuario = async (req, res) => {
+    const { nombreUsuario: name, emailUsuario: email, passwordUsuario: password } = req.body;
+
+    // Validación Datos Backend
+    await check('nombreUsuario').notEmpty().withMessage("El nombre no puede ir vacío").run(req);
+    await check('emailUsuario').isEmail().withMessage("Eso no parece un email").run(req);
+    await check('passwordUsuario').isLength({ min: 8 }).withMessage("Mínimo 8 caracteres").run(req);
+    await check('confirmacionUsuario').equals(password).withMessage("Las contraseñas no coinciden").run(req);
+
+    let resultado = validationResult(req);
+
+    // Test 3: Registro Fallido (Formulario mal llenado)
+    if (!resultado.isEmpty()) {
+        return res.render('auth/registro', {
+            pagina: 'Crea tu cuenta',
+            csrfToken: req.csrfToken(),
+            errores: resultado.array(),
+            usuario: { nombreUsuario: name, emailUsuario: email }
+        });
+    }
+
+    // Test 4: Registro Fallido (Correo duplicado)
+    const existeUsuario = await Usuario.findOne({ where: { email } });
+    if (existeUsuario) {
+        return res.render('auth/registro', {
+            pagina: 'Registrate con nosotros',
+            csrfToken: req.csrfToken(),
+            errores: [{ msg: 'El usuario ya está registrado' }],
+            usuario: { nombreUsuario: name, emailUsuario: email }
+        });
+    }
+
+    // Test 2: Registro Exitoso
+    const usuario = await Usuario.create({
+        nombre: name,
+        email,
+        password,
+        token: generarToken()
+    });
+
+    // Estilización: Envío de correo de confirmación
+    emailRegistro({
+        nombre: usuario.nombre,
+        email: usuario.email,
+        token: usuario.token
+    });
+
+    res.render("templates/mensaje", {
+        pagina: "Cuenta Creada",
+        msg: `Hemos enviado un email de confirmación a: ${email}`
+    });
+}
+
+// Test 5: Validación de Usuario por Email
+const paginaConfirmacion = async (req, res) => {
+    const { token } = req.params;
+    const usuarioToken = await Usuario.findOne({ where: { token } });
+
+    if (!usuarioToken) {
+        return res.render("templates/mensaje", {
+            pagina: "Error",
+            msg: `Código de verificación no válido.`
+        });
+    }
+
+    usuarioToken.token = null;
+    usuarioToken.confirmado = true;
+    await usuarioToken.save();
+
+    res.render("templates/mensaje", {
+        pagina: "Cuenta Confirmada",
+        msg: `Felicidades ${usuarioToken.nombre}, ya puedes iniciar sesión.`,
+        buttonVisibility: true,
+        buttonText: "Ingresar",
+        buttonURL: "/auth/login"
+    });
+}
+
+// --- RECUPERACIÓN Y ACTUALIZACIÓN ---
+
+const resetearPassword = async (req, res) => {
+    const { emailUsuario: email } = req.body;
+    await check('emailUsuario').isEmail().withMessage("Formato de correo no válido").run(req);
+    
+    let resultado = validationResult(req);
+    if (!resultado.isEmpty()) {
+        return res.render("auth/recuperar", { 
+            pagina: "Recuperar Acceso", 
+            csrfToken: req.csrfToken(),
+            errores: resultado.array()
+        });
+    }
+
+    const usuario = await Usuario.findOne({ where: { email } });
+    if (!usuario || !usuario.confirmado) {
+        return res.render("templates/mensaje", {
+            pagina: "Atención",
+            msg: `Si el correo existe y está confirmado, recibirás instrucciones.`
+        });
+    }
+
+    usuario.token = generarToken();
+    await usuario.save();
+
+    emailResetearPassword({
+        nombre: usuario.nombre,
+        email: usuario.email,
+        token: usuario.token
+    });
+
+    res.render("templates/mensaje", {
+        pagina: "Email Enviado",
+        msg: "Instrucciones enviadas a tu correo."
+    });
+}
+
+// Test 6, 7 y 8: Actualización de Password
+const actualizarPassword = async (req, res) => {
+    const { token } = req.params;
+    const { passwordUsuario: password, confirmacionUsuario } = req.body;
+
+    await check('passwordUsuario').isLength({ min: 8 }).withMessage("Mínimo 8 caracteres").run(req);
+    await check('confirmacionUsuario').equals(password).withMessage("Las contraseñas no coinciden").run(req);
+
+    let resultado = validationResult(req);
+
+    if (!resultado.isEmpty()) {
+        return res.render("auth/resetearPassword", {
+            pagina: "Reestablecer Password",
+            csrfToken: req.csrfToken(),
+            errores: resultado.array()
+        });
+    }
+
+    const usuario = await Usuario.findOne({ where: { token } });
+
+    // Test 8: Token inválido
+    if(!usuario) {
+        return res.render("templates/mensaje", {
+            pagina: "Error",
+            msg: "El token ha expirado o no es válido."
+        });
+    }
+
+    usuario.token = null;
+    usuario.password = password;
+    await usuario.save();
+
+    res.render("templates/mensaje", {
+        pagina: "Éxito",
+        msg: "Tu contraseña ha sido actualizada.",
+        buttonVisibility: true,
+        buttonText: "Login",
+        buttonURL: "/auth/login"
+    });
+}
+
+// EXTRA: Desbloqueo de Cuenta
+const desbloquearCuenta = async (req, res) => {
+    const { token } = req.params;
+    const usuario = await Usuario.findOne({ where: { tokenDesbloqueo: token } });
+
+    if(!usuario) {
+        return res.render("templates/mensaje", { pagina: "Error", msg: "Token de desbloqueo inválido." });
+    }
+
+    usuario.intentos = 0;
+    usuario.tokenDesbloqueo = null;
+    await usuario.save();
+
+    res.render("templates/mensaje", {
+        pagina: "Cuenta Desbloqueada",
+        msg: "Tu cuenta ha sido reactivada.",
+        buttonVisibility: true,
+        buttonText: "Ir al Login",
+        buttonURL: "/auth/login"
+    });
+}
+// Mostrar el formulario para cambiar el password
+const formularioActualizacionPassword = async (req, res) => {
+    const { token } = req.params;
+
+    // Verificar si el token es válido
+    const usuario = await Usuario.findOne({ where: { token } });
+
+    if (!usuario) {
+        return res.render("templates/mensaje", {
+            pagina: "Token no válido",
+            msg: "Hubo un error al validar tu información o el token ha expirado. Intenta de nuevo.",
+            buttonVisibility: true,
+            buttonText: "Recuperar cuenta",
+            buttonURL: "/auth/recuperar"
+        });
+    }
+
+    // Si el token existe, mostrar el formulario
+    res.render("auth/resetearPassword", {
+        pagina: "Reestablece tu Contraseña",
+        csrfToken: req.csrfToken()
+    });
+}
 export {
     formularioLogin,
     formularioLogin2,
+    autenticarUsuario,
     formularioRegistro,
     formualrioRecuperar,
     registrarUsuario,
-    paginaConfirmacion
+    paginaConfirmacion,
+    resetearPassword,
+    formularioActualizacionPassword,
+    actualizarPassword,
+    desbloquearCuenta
 }
